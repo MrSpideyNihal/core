@@ -59,7 +59,7 @@ if(NOT GTEST_FOUND OR USE_BUNDLED_GTEST)
 				set(SANITIZER_FLAGS
 					-DCMAKE_C_COMPILER="${CMAKE_C_COMPILER}"
 					-DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}"
-					-DCMAKE_CXX_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -stdlib=libc++"
+					-DCMAKE_CXX_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -stdlib=libc++ -fsanitize-ignorelist=${CMAKE_SOURCE_DIR}/source/tests/sanitizer/msan-ignorelist.txt"
 					-DCMAKE_EXE_LINKER_FLAGS="-fsanitize=memory -stdlib=libc++"
 					-DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=memory -stdlib=libc++"
 				)
