@@ -12,3 +12,4 @@
 # noise from the testing framework itself.
 src:*/googletest/*
 fun:testing::*
+src:*/_deps/googletest-src/*
