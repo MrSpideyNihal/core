@@ -13,3 +13,4 @@
 src:*/googletest/*
 fun:testing::*
 src:*/_deps/googletest-src/*
+fun:ext_loader_impl_execution_path
