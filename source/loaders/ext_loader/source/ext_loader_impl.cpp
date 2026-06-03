@@ -20,6 +20,10 @@
 
 #include <ext_loader/ext_loader_impl.h>
 
+#if defined(__has_feature) && __has_feature(memory_sanitizer)
+#	include <sanitizer/msan_interface.h>
+#endif
+
 #include <loader/loader.h>
 #include <loader/loader_impl.h>
 
@@ -107,6 +111,9 @@ int ext_loader_impl_initialize_types(loader_impl impl)
 loader_impl_data ext_loader_impl_initialize(loader_impl impl, configuration config)
 {
 	loader_impl_ext ext_impl = new loader_impl_ext_type();
+#if defined(__has_feature) && __has_feature(memory_sanitizer)
+	__msan_unpoison(ext_impl, sizeof(loader_impl_ext_type));
+#endif
 
 	(void)impl;
 	(void)config;
