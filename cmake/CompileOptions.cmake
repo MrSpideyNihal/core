@@ -424,6 +424,8 @@ if (PROJECT_OS_FAMILY MATCHES "unix" OR PROJECT_OS_FAMILY MATCHES "macos")
 		add_link_options(-fsanitize=memory)
 		add_link_options(-fsanitize-memory-track-origins)
 		add_link_options(-fsanitize-memory-use-after-dtor)
+		add_compile_options(-stdlib=libc++)
+		add_link_options(-stdlib=libc++)
 	endif()
 
 	# Debug symbols
