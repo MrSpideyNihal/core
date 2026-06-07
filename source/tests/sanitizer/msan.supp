@@ -1,3 +1,6 @@
 # Node.js is not built with MSan, suppress false positives from libnode internals
-fun:*node::ResetSignalHandlers*
-fun:*node::linux_at_secure*
+fun:node::ResetSignalHandlers
+fun:node::linux_at_secure
+
+# Python is not built with MSan, suppress false positives
+fun:Py_InitializeEx
