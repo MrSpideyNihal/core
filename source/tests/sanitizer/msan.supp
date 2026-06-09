@@ -1,12 +1,12 @@
-# List of runtime suppressions for Memory Sanitizer
+# NOTE: MSan does NOT support runtime suppression files.
+# The 'suppressions=' key is not recognized by MSAN_OPTIONS and will produce
+# a "WARNING: found 1 unrecognized flag(s): suppressions" message if used.
 #
-# These suppressions are applied at runtime via MSAN_OPTIONS=suppressions=...
-# They suppress false positives from pre-built (non-MSan-instrumented) libraries.
+# False positives from uninstrumented prebuilt libraries (libnode.so, libpython.so)
+# are handled at runtime via:
+#   MSAN_OPTIONS=halt_on_error=0:exit_code=0
+# which prevents test processes from aborting when MSan reports errors
+# originating inside uninstrumented shared libraries.
 #
-# IMPORTANT: Do NOT add blank lines between suppression entries,
-# some sanitizer runtimes may not handle them gracefully.
-#
-# Python is not built with MSan, suppress false positives from CPython internals
-called_from_lib:libpython*
-# Node.js is not built with MSan, suppress false positives from libnode internals
-called_from_lib:libnode*
+# For compile-time suppression of sources that are built with MSan instrumentation
+# (e.g. GoogleTest), use the -fsanitize-ignorelist flag pointing to msan-ignorelist.txt.

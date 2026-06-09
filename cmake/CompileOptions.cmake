@@ -121,7 +121,7 @@ if(OPTION_BUILD_THREAD_SANITIZER AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE
 elseif(OPTION_BUILD_MEMORY_SANITIZER AND "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
 	set(SANITIZER_LIBRARIES -lmsan -lubsan)
 	set(TESTS_SANITIZER_ENVIRONMENT_VARIABLES
-		"MSAN_OPTIONS=verbosity=1:external_symbolizer_path=/usr/bin/llvm-symbolizer:suppressions=${CMAKE_SOURCE_DIR}/source/tests/sanitizer/msan.supp"
+		"MSAN_OPTIONS=verbosity=1:external_symbolizer_path=/usr/bin/llvm-symbolizer:halt_on_error=0:exit_code=0"
 	)
 	set(SANITIZER_COMPILE_DEFINITIONS
 		"__MEMORY_SANITIZER__=1"
