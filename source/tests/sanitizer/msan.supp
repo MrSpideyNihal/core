@@ -1,1 +1,12 @@
-# TODO
+# List of runtime suppressions for Memory Sanitizer
+#
+# These suppressions are applied at runtime via MSAN_OPTIONS=suppressions=...
+# They suppress false positives from pre-built (non-MSan-instrumented) libraries.
+#
+# IMPORTANT: Do NOT add blank lines between suppression entries,
+# some sanitizer runtimes may not handle them gracefully.
+#
+# Python is not built with MSan, suppress false positives from CPython internals
+called_from_lib:libpython*
+# Node.js is not built with MSan, suppress false positives from libnode internals
+called_from_lib:libnode*
