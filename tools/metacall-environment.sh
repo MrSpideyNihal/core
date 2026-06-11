@@ -910,91 +910,64 @@ sub_clang(){
 }
 
 sub_clang_msan(){
-	echo "configure clang msan"
-	cd $ROOT_DIR
+        echo "configure clang msan"
+        cd $ROOT_DIR
 
-	if [ "${OPERATIVE_SYSTEM}" = 'Linux' ]; then
-		$SUDO_CMD apt-get $APT_CACHE_CMD install -y --no-install-recommends \
-			clang lld libclang-rt-dev llvm-dev \
-			build-essential cmake ninja-build git ca-certificates \
-			python3 python3-dev
-
-		# Compile clang with memory sanitizer
-		mkdir -p /tmp/msan
-
-		# Detect installed clang major.minor.patch version from apt package
-		CLANG_VERSION="$(clang --version | sed -n 's/.*clang version \([0-9.]*\).*/\1/p' | head -n1)"
-
-		# Download matching LLVM source tree
-		git clone --depth=1 -b "llvmorg-${CLANG_VERSION}" https://github.com/llvm/llvm-project /tmp/msan/llvm-project
-
-		# Stage 1: rebuild clang matching distro version
-		# Install into /usr to override existing system clang
-		cmake \
-			-G Ninja \
-			-B /tmp/msan/clang_build/ \
-			-S /tmp/msan/llvm-project/llvm \
-			-DLLVM_ENABLE_PROJECTS="clang;compiler-rt" \
-			-DCMAKE_BUILD_TYPE=Release \
-			-DLLVM_TARGETS_TO_BUILD=Native \
-			-DCMAKE_INSTALL_PREFIX=/usr
-
-		ninja -C /tmp/msan/clang_build/ -j$(nproc)
-		$SUDO_CMD ninja -C /tmp/msan/clang_build/ install
-
-		# Stage 2: build libc++ with MSan using rebuilt clang
-		cmake \
-			-G Ninja \
-			-B /tmp/msan/cxx_build/ \
-			-S /tmp/msan/llvm-project/runtimes \
-			-DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
-			-DCMAKE_BUILD_TYPE=Release \
-			-DLLVM_USE_SANITIZER=MemoryWithOrigins \
-			-DCMAKE_C_COMPILER=/usr/bin/clang \
-			-DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
-			-DLLVM_TARGETS_TO_BUILD=Native \
-			-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF \
-			-DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
-			-DCMAKE_INSTALL_PREFIX=/usr
-
-		ninja -C /tmp/msan/cxx_build/ -j$(nproc)
-		$SUDO_CMD ninja -C /tmp/msan/cxx_build/ install
-
-		rm -rf /tmp/msan
-    elif [ "${OPERATIVE_SYSTEM}" = "FreeBSD" ]; then
+        if [ "${OPERATIVE_SYSTEM}" = "Linux" ]; then
+                $SUDO_CMD apt-get $APT_CACHE_CMD install -y --no-install-recommends \
+                        clang lld libclang-rt-dev llvm-dev \
+                        build-essential cmake ninja-build git ca-certificates \
+                        python3 python3-dev
+                INSTALL_PREFIX=/usr
+                NPROC=$(nproc)
+        elif [ "${OPERATIVE_SYSTEM}" = "FreeBSD" ]; then
                 $SUDO_CMD pkg install -y llvm cmake ninja git python3
-                mkdir -p /tmp/msan
-                CLANG_VERSION="$(clang --version | sed -n 's/.*clang version \([0-9.]*\).*/\1/p' | head -n1)"
-                git clone --depth=1 -b "llvmorg-${CLANG_VERSION}" https://github.com/llvm/llvm-project /tmp/msan/llvm-project
-                cmake \
-                        -G Ninja \
-                        -B /tmp/msan/clang_build/ \
-                        -S /tmp/msan/llvm-project/llvm \
-                        -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" \
-                        -DCMAKE_BUILD_TYPE=Release \
-                        -DLLVM_TARGETS_TO_BUILD=Native \
-                        -DCMAKE_INSTALL_PREFIX=/usr/local
-                ninja -C /tmp/msan/clang_build/ -j$(sysctl -n hw.ncpu)
-                $SUDO_CMD ninja -C /tmp/msan/clang_build/ install
-                cmake \
-                        -G Ninja \
-                        -B /tmp/msan/cxx_build/ \
-                        -S /tmp/msan/llvm-project/runtimes \
-                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
-                        -DCMAKE_BUILD_TYPE=Release \
-                        -DLLVM_USE_SANITIZER=MemoryWithOrigins \
-                        -DCMAKE_C_COMPILER=/usr/local/bin/clang \
-                        -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
-                        -DLLVM_TARGETS_TO_BUILD=Native \
-                        -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF \
-                        -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
-                        -DCMAKE_INSTALL_PREFIX=/usr/local
-                ninja -C /tmp/msan/cxx_build/ -j$(sysctl -n hw.ncpu)
-                $SUDO_CMD ninja -C /tmp/msan/cxx_build/ install
-                rm -rf /tmp/msan
+                INSTALL_PREFIX=/usr/local
+                NPROC=$(sysctl -n hw.ncpu)
         fi
-}
 
+        # Compile clang with memory sanitizer
+        mkdir -p /tmp/msan
+
+        # Detect installed clang major.minor.patch version
+        CLANG_VERSION="$(clang --version | sed -n 's/.*clang version \([0-9.]*\).*/\1/p' | head -n1)"
+
+        # Download matching LLVM source tree
+        git clone --depth=1 -b "llvmorg-${CLANG_VERSION}" https://github.com/llvm/llvm-project /tmp/msan/llvm-project
+
+        # Stage 1: rebuild clang matching distro version
+        cmake \
+                -G Ninja \
+                -B /tmp/msan/clang_build/ \
+                -S /tmp/msan/llvm-project/llvm \
+                -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DLLVM_TARGETS_TO_BUILD=Native \
+                -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+
+        ninja -C /tmp/msan/clang_build/ -j${NPROC}
+        $SUDO_CMD ninja -C /tmp/msan/clang_build/ install
+
+        # Stage 2: build libc++ with MSan using rebuilt clang
+        cmake \
+                -G Ninja \
+                -B /tmp/msan/cxx_build/ \
+                -S /tmp/msan/llvm-project/runtimes \
+                -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DLLVM_USE_SANITIZER=MemoryWithOrigins \
+                -DCMAKE_C_COMPILER=${INSTALL_PREFIX}/bin/clang \
+                -DCMAKE_CXX_COMPILER=${INSTALL_PREFIX}/bin/clang++ \
+                -DLLVM_TARGETS_TO_BUILD=Native \
+                -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF \
+                -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
+                -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+
+        ninja -C /tmp/msan/cxx_build/ -j${NPROC}
+        $SUDO_CMD ninja -C /tmp/msan/cxx_build/ install
+
+        rm -rf /tmp/msan
+}
 # Clang format
 sub_clang_format(){
 	echo "configure clang format"
