@@ -31,17 +31,28 @@ jobs:
             sanitizer: address-sanitizer
           - build: release
             sanitizer: thread-sanitizer
+          - build: release
+            sanitizer: clangmsan memory-sanitizer
         # TODO: Implement support for arm64 of c and wasm
         include:
           - arch: x86-64
             extra-loaders: "c wasm"
-
     steps:
+      - name: Free Disk Space
+        if: matrix.sanitizer == 'clangmsan memory-sanitizer'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Run FreeBSD VM
         uses: cross-platform-actions/action@v1.1.0
         with:
