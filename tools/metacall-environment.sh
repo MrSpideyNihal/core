@@ -961,7 +961,38 @@ sub_clang_msan(){
 		$SUDO_CMD ninja -C /tmp/msan/cxx_build/ install
 
 		rm -rf /tmp/msan
-	fi
+    elif [ "${OPERATIVE_SYSTEM}" = "FreeBSD" ]; then
+                $SUDO_CMD pkg install -y llvm cmake ninja git python3
+                mkdir -p /tmp/msan
+                CLANG_VERSION="$(clang --version | sed -n 's/.*clang version \([0-9.]*\).*/\1/p' | head -n1)"
+                git clone --depth=1 -b "llvmorg-${CLANG_VERSION}" https://github.com/llvm/llvm-project /tmp/msan/llvm-project
+                cmake \
+                        -G Ninja \
+                        -B /tmp/msan/clang_build/ \
+                        -S /tmp/msan/llvm-project/llvm \
+                        -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" \
+                        -DCMAKE_BUILD_TYPE=Release \
+                        -DLLVM_TARGETS_TO_BUILD=Native \
+                        -DCMAKE_INSTALL_PREFIX=/usr/local
+                ninja -C /tmp/msan/clang_build/ -j$(sysctl -n hw.ncpu)
+                $SUDO_CMD ninja -C /tmp/msan/clang_build/ install
+                cmake \
+                        -G Ninja \
+                        -B /tmp/msan/cxx_build/ \
+                        -S /tmp/msan/llvm-project/runtimes \
+                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
+                        -DCMAKE_BUILD_TYPE=Release \
+                        -DLLVM_USE_SANITIZER=MemoryWithOrigins \
+                        -DCMAKE_C_COMPILER=/usr/local/bin/clang \
+                        -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
+                        -DLLVM_TARGETS_TO_BUILD=Native \
+                        -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF \
+                        -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
+                        -DCMAKE_INSTALL_PREFIX=/usr/local
+                ninja -C /tmp/msan/cxx_build/ -j$(sysctl -n hw.ncpu)
+                $SUDO_CMD ninja -C /tmp/msan/cxx_build/ install
+                rm -rf /tmp/msan
+        fi
 }
 
 # Clang format

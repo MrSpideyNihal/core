@@ -25,7 +25,7 @@ jobs:
         # TODO: Implement OpenBSD, Haiku, OmniOS
         build: [debug, relwithdebinfo, release]
         arch: [x86-64, arm64]
-        sanitizer: ["", "address-sanitizer", "thread-sanitizer"]
+        sanitizer: ["", "address-sanitizer", "thread-sanitizer", "clangmsan memory-sanitizer"]
         exclude:
           - build: release
             sanitizer: address-sanitizer
@@ -50,7 +50,7 @@ jobs:
           architecture: ${{ matrix.arch }}
           shell: sh
           run: |
-            sh ./tools/metacall-environment.sh base python ${{ matrix.extra-loaders }} ruby go java cobol file rpc backtrace
+            sh ./tools/metacall-environment.sh base python ${{ matrix.extra-loaders }} ruby go java cobol file rpc backtrace ${{ matrix.sanitizer }}
             mkdir -p build && cd build
             sh ../tools/metacall-configure.sh ${{ matrix.build }} ${{ matrix.sanitizer }} scripts python ${{ matrix.extra-loaders }} ruby go java cobol file rpc tests
             sh ../tools/metacall-build.sh ${{ matrix.build }} ${{ matrix.sanitizer }} ${{ matrix.extra-loaders }} ruby go java cobol file rpc tests
