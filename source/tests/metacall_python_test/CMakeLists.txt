@@ -1,5 +1,6 @@
 # Check if this loader is enabled
 if(NOT OPTION_BUILD_LOADERS OR NOT OPTION_BUILD_LOADERS_PY OR NOT OPTION_BUILD_SCRIPTS OR NOT OPTION_BUILD_SCRIPTS_PY)
+
 	return()
 endif()
 
@@ -140,6 +141,19 @@ add_test(NAME ${target}
 add_dependencies(${target}
 	py_loader
 )
+
+# Valgrind Profiling
+metacall_add_valgrind_memcheck(${target}
+	LEAK_CHECK full
+	SHOW_REACHABLE
+	UNDEF_VALUE_ERRORS
+	SUPPRESSIONS_FILE source/tests/memcheck/valgrind-python.supp
+)
+
+metacall_add_valgrind_helgrind(${target}
+)
+
+
 
 #
 # Define test properties

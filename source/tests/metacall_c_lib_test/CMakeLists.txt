@@ -141,6 +141,18 @@ add_dependencies(${target}
 	loadtest
 )
 
+# Valgrind Profiling
+metacall_add_valgrind_memcheck(${target}
+	LEAK_CHECK full
+	SHOW_REACHABLE
+	UNDEF_VALUE_ERRORS
+)
+
+metacall_add_valgrind_helgrind(${target}
+)
+
+
+
 #
 # Define test properties
 #

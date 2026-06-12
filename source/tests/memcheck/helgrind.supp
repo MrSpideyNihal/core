@@ -1,0 +1,7 @@
+# Placeholder for Helgrind suppressions.
+# Thread synchronization issues in external libraries can be added here.
+
+{
+   Helgrind:Race
+   obj:*
+}

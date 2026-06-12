@@ -167,6 +167,8 @@ endif()
 #
 
 include(CompileOptions)
+include(Valgrind)
+
 
 #
 # Coverage
