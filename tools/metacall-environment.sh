@@ -1432,6 +1432,10 @@ sub_options(){
 			echo "memcheck selected"
 			INSTALL_MEMCHECK=1
 		fi
+		if [ "$option" = 'helgrind' ]; then
+			echo "helgrind selected"
+			INSTALL_MEMCHECK=1
+		fi
 		if [ "$option" = 'address-sanitizer' ]; then
 			echo "address sanitizer selected"
 			INSTALL_ADDRESS_SANITIZER=1
@@ -1503,6 +1507,7 @@ sub_help() {
 	echo "	pack"
 	echo "	coverage"
 	echo "	memcheck"
+	echo "	helgrind"
 	echo "	address-sanitizer"
 	echo "	thread-sanitizer"
 	echo "	memory-sanitizer"

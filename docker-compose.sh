@@ -141,6 +141,17 @@ sub_test_memcheck() {
 	$DOCKER_COMPOSE -f docker-compose.yml build --force-rm dev
 }
 
+# Build MetaCall Docker Compose with Helgrind for testing
+sub_test_helgrind() {
+	# Enable build with helgrind
+	export METACALL_BUILD_MEMCHECK=helgrind
+
+	# Define build type
+	export METACALL_BUILD_TYPE=debug
+
+	$DOCKER_COMPOSE -f docker-compose.yml build --force-rm dev
+}
+
 # Build MetaCall Docker Compose with Clang for testing
 sub_test_clang() {
 	# Enable build with clang
@@ -399,6 +410,7 @@ sub_help() {
 	echo "	test-memory-sanitizer"
 	echo "	coverage"
 	echo "	test-memcheck"
+	echo "	test-helgrind"
 	echo "	test-clang"
 	echo "	cache"
 	echo "	platform"
@@ -436,6 +448,9 @@ case "$1" in
 		;;
 	test-memcheck)
 		sub_test_memcheck
+		;;
+	test-helgrind)
+		sub_test_helgrind
 		;;
 	test-clang)
 		sub_test_clang

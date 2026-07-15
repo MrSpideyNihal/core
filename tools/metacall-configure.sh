@@ -50,6 +50,7 @@ BUILD_PORTS=0
 BUILD_SANDBOX=0
 BUILD_COVERAGE=0
 BUILD_MEMCHECK=0
+BUILD_HELGRIND=0
 BUILD_CLANG=0
 BUILD_ADDRESS_SANITIZER=0
 BUILD_THREAD_SANITIZER=0
@@ -227,6 +228,10 @@ sub_options() {
 		if [ "$option" = 'memcheck' ]; then
 			echo "Build with memcheck"
 			BUILD_MEMCHECK=1
+		fi
+		if [ "$option" = 'helgrind' ]; then
+			echo "Build with helgrind"
+			BUILD_HELGRIND=1
 		fi
 		if [ "$option" = 'clang' ] || [ "$option" = 'clang-msan' ]; then
 			echo "Build with clang compiler"
@@ -601,6 +606,13 @@ sub_configure() {
 		BUILD_STRING="$BUILD_STRING -DOPTION_TEST_MEMORYCHECK=Off"
 	fi
 
+	# Helgrind
+	if [ $BUILD_HELGRIND = 1 ]; then
+		BUILD_STRING="$BUILD_STRING -DOPTION_TEST_HELGRIND=On"
+	else
+		BUILD_STRING="$BUILD_STRING -DOPTION_TEST_HELGRIND=Off"
+	fi
+
 	# Address Sanitizer
 	if [ $BUILD_ADDRESS_SANITIZER = 1 ]; then
 		BUILD_STRING="$BUILD_STRING -DOPTION_BUILD_ADDRESS_SANITIZER=On"
@@ -696,6 +708,7 @@ sub_help() {
 	echo "	sandbox: build with sandboxing support"
 	echo "	coverage: build all coverage reports"
 	echo "	memcheck: build with memcheck"
+	echo "	helgrind: build with helgrind"
 	echo "	clang: build with clang compiler"
 	echo "	clang-msan: build with clang compiler with memory sanitizer"
 	echo "	address-sanitizer: build with address sanitizer"
