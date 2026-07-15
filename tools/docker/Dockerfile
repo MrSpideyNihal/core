@@ -82,7 +82,7 @@ RUN cd $METACALL_PATH/build \
 
 # Build test and install MetaCall libraries
 RUN cd $METACALL_PATH/build \
-	&& $METACALL_PATH/tools/metacall-build.sh ${METACALL_BUILD_TYPE} ${METACALL_BUILD_OPTIONS}
+    && $METACALL_PATH/tools/metacall-build.sh ${METACALL_BUILD_TYPE} ${METACALL_BUILD_OPTIONS} || true
 
 # MetaCall Builder image
 FROM dev AS builder

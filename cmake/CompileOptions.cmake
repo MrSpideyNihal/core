@@ -69,6 +69,10 @@ set(DEFAULT_INCLUDE_DIRECTORIES)
 #
 
 # Valgrind
+if(OPTION_TEST_MEMORYCHECK AND OPTION_TEST_HELGRIND)
+	message(FATAL_ERROR "OPTION_TEST_MEMORYCHECK and OPTION_TEST_HELGRIND are mutually exclusive, choose one of them")
+endif()
+
 if(OPTION_TEST_MEMORYCHECK)
 	set(MEMORYCHECK_COMPILE_DEFINITIONS
 		"__MEMORYCHECK__=1"
@@ -98,6 +102,26 @@ if(OPTION_TEST_MEMORYCHECK)
 			set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${SUPPRESSION}")
 		endif()
 	endforeach()
+
+	# This is needed in order to allow valgrind to properly track malloc in Python
+	set(TESTS_MEMCHECK_ENVIRONMENT_VARIABLES
+		"PYTHONMALLOC=malloc"
+	)
+elseif(OPTION_TEST_HELGRIND)
+	set(MEMORYCHECK_COMPILE_DEFINITIONS
+		"__MEMORYCHECK__=1"
+	)
+
+	set(MEMORYCHECK_COMMAND_OPTIONS "--tool=helgrind")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --history-level=full")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --trace-children=yes")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --num-callers=100")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --smc-check=all-non-file") # for JITs
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${CMAKE_SOURCE_DIR}/source/tests/memcheck/valgrind-dl.supp")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${CMAKE_SOURCE_DIR}/source/tests/memcheck/valgrind-python.supp")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${CMAKE_SOURCE_DIR}/source/tests/memcheck/valgrind-node.supp")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${CMAKE_SOURCE_DIR}/source/tests/memcheck/valgrind-wasm.supp")
+	set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${CMAKE_SOURCE_DIR}/source/tests/memcheck/valgrind-ruby.supp")
 
 	# This is needed in order to allow valgrind to properly track malloc in Python
 	set(TESTS_MEMCHECK_ENVIRONMENT_VARIABLES

@@ -1283,12 +1283,28 @@ sub_options(){
 			echo "memcheck selected"
 			INSTALL_MEMCHECK=1
 		fi
+		if [ "$option" = 'helgrind' ]; then
+			echo "helgrind selected"
+			INSTALL_MEMCHECK=1
+		fi
+		if [ "$option" = 'address-sanitizer' ]; then
+			echo "address sanitizer selected"
+			INSTALL_ADDRESS_SANITIZER=1
+		fi
+		if [ "$option" = 'thread-sanitizer' ]; then
+			echo "thread sanitizer selected"
+			INSTALL_THREAD_SANITIZER=1
+		fi
+		if [ "$option" = 'memory-sanitizer' ]; then
+			echo "memory sanitizer selected"
+			INSTALL_MEMORY_SANITIZER=1
+		fi
 		if [ "$option" = 'clang' ]; then
 			echo "clang selected"
 			INSTALL_CLANG=1
 		fi
-		if [ "$option" = 'clangmsan' ]; then
-			echo "clangmsan selected"
+		if [ "$option" = 'clang-msan' ]; then
+			echo "clang-msan selected"
 			INSTALL_CLANG_MSAN=1
 		fi
 		if [ "$option" = 'clangformat' ]; then
@@ -1342,8 +1358,12 @@ sub_help() {
 	echo "	pack"
 	echo "	coverage"
 	echo "	memcheck"
+	echo "	helgrind"
+	echo "	address-sanitizer"
+	echo "	thread-sanitizer"
+	echo "	memory-sanitizer"
 	echo "	clang"
-	echo "	clangmsan"
+	echo "	clang-msan"
 	echo "	clangformat"
 	echo "	backtrace"
 	echo "	sandbox"
