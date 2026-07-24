@@ -412,6 +412,8 @@ sub_help() {
 	echo "	test-memcheck"
 	echo "	test-helgrind"
 	echo "	test-clang"
+	echo "	test-clang-address-sanitizer"
+	echo "	test-clang-thread-sanitizer"
 	echo "	cache"
 	echo "	platform"
 	echo "	push"
@@ -454,6 +456,16 @@ case "$1" in
 		;;
 	test-clang)
 		sub_test_clang
+		;;
+	test-clang-address-sanitizer)
+		export METACALL_BUILD_CLANG="clang"
+		export METACALL_BUILD_SANITIZER="address-sanitizer"
+		sub_test_sanitizer
+		;;
+	test-clang-thread-sanitizer)
+		export METACALL_BUILD_CLANG="clang"
+		export METACALL_BUILD_SANITIZER="thread-sanitizer"
+		sub_test_sanitizer
 		;;
 	cache)
 		sub_cache
