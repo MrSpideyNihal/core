@@ -363,11 +363,14 @@ sub_ruby(){
                                 export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
                                 eval "$(rbenv init -)"
 
+                                export TSAN_OPTIONS="halt_on_error=0:use_sigaltstack=0"
                                 rbenv install 3.4.1 || {
+                                        unset TSAN_OPTIONS
                                         echo "=== ruby-build logs ==="
                                         cat /tmp/ruby-build*
                                         exit 1
                                 }
+                                unset TSAN_OPTIONS
                                 rbenv global 3.4.1
 
                                 $SUDO_CMD ln -sf "$RBENV_ROOT/versions/3.4.1/bin/ruby" /usr/local/bin/ruby
